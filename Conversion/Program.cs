@@ -1,10 +1,7 @@
 ﻿namespace Conversion
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using Microsoft.CognitiveServices.SpeechRecognition;
 
     class Program
     {
@@ -13,6 +10,11 @@
             Console.Write("Please enter your subscription key: ");
             var key = Console.ReadLine();
             Console.WriteLine("Key provided is: {0}", key);
+
+
+            Console.Write("Please provide file: ");
+            var file = Console.ReadLine();
+            Console.WriteLine("File provided is: {0}", file);
         }
     }
 }
