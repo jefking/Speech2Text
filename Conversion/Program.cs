@@ -3,9 +3,12 @@
     using System;
     using Microsoft.CognitiveServices.SpeechRecognition;
     using System.IO;
+    using System.Threading;
 
     class Program
     {
+        private static bool done;
+
         static void Main(string[] args)
         {
             Console.Write("Please enter your subscription key: ");
@@ -19,7 +22,7 @@
 
             var defaultLocale = "en-US";
             var mode = SpeechRecognitionMode.ShortPhrase;
-            
+
             using (var dataClient = SpeechRecognitionServiceFactory.CreateDataClient(mode, defaultLocale, key))
             {
                 // Event handlers for speech recognition results
@@ -47,7 +50,7 @@
 
                             // Get more Audio data to send into byte buffer.
                             bytesRead = fileStream.Read(buffer, 0, buffer.Length);
-                            
+
                             // Send of audio data to service. 
                             dataClient.SendAudio(buffer, bytesRead);
                         }
@@ -60,6 +63,14 @@
                     }
 
                     Console.WriteLine();
+
+                    Console.Write("Waiting for response");
+                    while (!done)
+                    {
+                        Console.Write(".");
+
+                        Thread.Sleep(250);
+                    }
                 }
             }
         }
@@ -106,6 +117,8 @@
 
                 Console.WriteLine();
             }
+
+            done = true;
         }
 
         /// <summary>
@@ -130,6 +143,7 @@
             Console.WriteLine("--- Partial result received by OnPartialResponseReceivedHandler() ---");
             Console.WriteLine("{0}", e.PartialResult);
             Console.WriteLine();
+            done = true;
         }
 
         /// <summary>
@@ -143,6 +157,7 @@
             Console.WriteLine("Error code: {0}", e.SpeechErrorCode.ToString());
             Console.WriteLine("Error text: {0}", e.SpeechErrorText);
             Console.WriteLine();
+            done = true;
         }
     }
 }
