@@ -21,7 +21,7 @@
             Console.WriteLine("File provided is: {0}", file);
 
             var defaultLocale = "en-US";
-            var mode = SpeechRecognitionMode.ShortPhrase;
+            var mode = SpeechRecognitionMode.LongDictation;
 
             using (var dataClient = SpeechRecognitionServiceFactory.CreateDataClient(mode, defaultLocale, key))
             {
