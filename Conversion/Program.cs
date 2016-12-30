@@ -19,9 +19,14 @@
 
             var defaultLocale = "en-US";
             var mode = SpeechRecognitionMode.ShortPhrase;
-
+            
             using (var dataClient = SpeechRecognitionServiceFactory.CreateDataClient(mode, defaultLocale, key))
             {
+                // Event handlers for speech recognition results
+                dataClient.OnResponseReceived += OnDataDictationResponseReceivedHandler;
+                dataClient.OnPartialResponseReceived += OnPartialResponseReceivedHandler;
+                dataClient.OnConversationError += OnConversationErrorHandler;
+
                 using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
                     // Note for wave files, we can just send data from the file right to the server.
@@ -51,6 +56,87 @@
                     }
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Called when a final response is received;
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
+        private static void OnDataDictationResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
+        {
+            Console.WriteLine("--- OnDataDictationResponseReceivedHandler ---");
+            if (e.PhraseResponse.RecognitionStatus == RecognitionStatus.EndOfDictation ||
+                e.PhraseResponse.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout)
+            {
+                Console.WriteLine("Completed");
+            }
+
+            WriteResponseResult(e);
+        }
+
+        /// <summary>
+        /// Writes the response result.
+        /// </summary>
+        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
+        private static void WriteResponseResult(SpeechResponseEventArgs e)
+        {
+            if (e.PhraseResponse.Results.Length == 0)
+            {
+                Console.WriteLine("No phrase response is available.");
+            }
+            else
+            {
+                Console.WriteLine("********* Final n-BEST Results *********");
+                for (int i = 0; i < e.PhraseResponse.Results.Length; i++)
+                {
+                    Console.WriteLine(
+                        "[{0}] Confidence={1}, Text=\"{2}\"",
+                        i,
+                        e.PhraseResponse.Results[i].Confidence,
+                        e.PhraseResponse.Results[i].DisplayText);
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// Called when a final response is received and its intent is parsed
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechIntentEventArgs"/> instance containing the event data.</param>
+        private static void OnIntentHandler(object sender, SpeechIntentEventArgs e)
+        {
+            Console.WriteLine("--- Intent received by OnIntentHandler() ---");
+            Console.WriteLine("{0}", e.Payload);
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Called when a partial response is received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="PartialSpeechResponseEventArgs"/> instance containing the event data.</param>
+        private static void OnPartialResponseReceivedHandler(object sender, PartialSpeechResponseEventArgs e)
+        {
+            Console.WriteLine("--- Partial result received by OnPartialResponseReceivedHandler() ---");
+            Console.WriteLine("{0}", e.PartialResult);
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Called when an error is received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechErrorEventArgs"/> instance containing the event data.</param>
+        private static void OnConversationErrorHandler(object sender, SpeechErrorEventArgs e)
+        {
+            Console.WriteLine("--- Error received by OnConversationErrorHandler() ---");
+            Console.WriteLine("Error code: {0}", e.SpeechErrorCode.ToString());
+            Console.WriteLine("Error text: {0}", e.SpeechErrorText);
+            Console.WriteLine();
         }
     }
 }
