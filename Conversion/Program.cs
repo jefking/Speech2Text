@@ -33,14 +33,9 @@
                 using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
                     Console.Write("Processing File");
-
-                    // Note for wave files, we can just send data from the file right to the server.
-                    // In the case you are not an audio file in wave format, and instead you have just
-                    // raw data (for example audio coming over bluetooth), then before sending up any 
-                    // audio data, you must first send up an SpeechAudioFormat descriptor to describe 
-                    // the layout and format of your raw audio data via DataRecognitionClient's sendAudioFormat() method.
-                    int bytesRead = 0;
-                    byte[] buffer = new byte[1024];
+                    
+                    var bytesRead = 0;
+                    var buffer = new byte[1024];
 
                     try
                     {
@@ -83,11 +78,14 @@
         /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
         private static void OnDataDictationResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
         {
+            Console.WriteLine();
             Console.WriteLine("--- OnDataDictationResponseReceivedHandler ---");
-            if (e.PhraseResponse.RecognitionStatus == RecognitionStatus.EndOfDictation ||
-                e.PhraseResponse.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout)
+            switch (e.PhraseResponse.RecognitionStatus)
             {
-                Console.WriteLine("Completed");
+                case RecognitionStatus.EndOfDictation:
+                case RecognitionStatus.DictationEndSilenceTimeout:
+                    Console.WriteLine("Completed");
+                    break;
             }
 
             WriteResponseResult(e);
@@ -99,6 +97,8 @@
         /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
         private static void WriteResponseResult(SpeechResponseEventArgs e)
         {
+            Console.WriteLine();
+
             if (e.PhraseResponse.Results.Length == 0)
             {
                 Console.WriteLine("No phrase response is available.");
@@ -128,6 +128,7 @@
         /// <param name="e">The <see cref="SpeechIntentEventArgs"/> instance containing the event data.</param>
         private static void OnIntentHandler(object sender, SpeechIntentEventArgs e)
         {
+            Console.WriteLine();
             Console.WriteLine("--- Intent received by OnIntentHandler() ---");
             Console.WriteLine("{0}", e.Payload);
             Console.WriteLine();
@@ -140,6 +141,7 @@
         /// <param name="e">The <see cref="PartialSpeechResponseEventArgs"/> instance containing the event data.</param>
         private static void OnPartialResponseReceivedHandler(object sender, PartialSpeechResponseEventArgs e)
         {
+            Console.WriteLine();
             Console.WriteLine("--- Partial result received by OnPartialResponseReceivedHandler() ---");
             Console.WriteLine("{0}", e.PartialResult);
             Console.WriteLine();
@@ -153,6 +155,7 @@
         /// <param name="e">The <see cref="SpeechErrorEventArgs"/> instance containing the event data.</param>
         private static void OnConversationErrorHandler(object sender, SpeechErrorEventArgs e)
         {
+            Console.WriteLine();
             Console.WriteLine("--- Error received by OnConversationErrorHandler() ---");
             Console.WriteLine("Error code: {0}", e.SpeechErrorCode.ToString());
             Console.WriteLine("Error text: {0}", e.SpeechErrorText);
