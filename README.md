@@ -2,5 +2,5 @@
 Bing Speech API: Command Line
 
 Enter:
--Bing Speech API Key
--Path of Wav file
+- Bing Speech API Key
+- Path of Wav file
