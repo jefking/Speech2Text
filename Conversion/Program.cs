@@ -29,6 +29,8 @@
 
                 using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
+                    Console.Write("Processing File");
+
                     // Note for wave files, we can just send data from the file right to the server.
                     // In the case you are not an audio file in wave format, and instead you have just
                     // raw data (for example audio coming over bluetooth), then before sending up any 
@@ -41,9 +43,11 @@
                     {
                         do
                         {
+                            Console.Write(".");
+
                             // Get more Audio data to send into byte buffer.
                             bytesRead = fileStream.Read(buffer, 0, buffer.Length);
-
+                            
                             // Send of audio data to service. 
                             dataClient.SendAudio(buffer, bytesRead);
                         }
@@ -54,6 +58,8 @@
                         // We are done sending audio.  Final recognition results will arrive in OnResponseReceived event call.
                         dataClient.EndAudio();
                     }
+
+                    Console.WriteLine();
                 }
             }
         }
